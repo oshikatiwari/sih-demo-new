@@ -1,11 +1,16 @@
-<div align="center">
+﻿# SIH CogniCare — AI Cognitive Care Platform (PS 26003)
 
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
+## Modules
+1. Cognitive Games — mobile_app/lib/games/
+2. AI Adaptive Difficulty — ml_pipeline/
+3. Voice/Multilingual — mobile_app/lib/voice/
+4. Reminders — mobile_app/lib/reminders/, backend/app/reminders/
+5. Caregiver Dashboard + Offline Sync — dashboard/, backend/
+6. Real-Time GPS Tracking & Geofencing Sentinel — gps_tracking/
 
-  <h1>Built with AI Studio</h2>
+## Stack
+Flutter + Flame + Riverpod + Drift | FastAPI + PostgreSQL + JWT | scikit-learn/XGBoost | React + Recharts | Kotlin + Jetpack Compose + OSM
 
-  <p>The fastest path from prompt to production with Gemini.</p>
-
-  <a href="https://aistudio.google.com/apps">Start building</a>
-
-</div>
+## Branching
+main (protected) -> dev -> feature/<module>-<task>
+See CONTRIBUTING.md before pushing anything.
