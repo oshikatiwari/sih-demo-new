@@ -25,6 +25,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.smriti.data.SmritiRepository
+import com.example.smriti.service.AppStrings
 import com.example.smriti.ui.theme.EmeraldGreen
 import com.example.smriti.ui.theme.ForestGreen
 import com.example.smriti.ui.theme.MintPastel
@@ -34,6 +35,7 @@ import com.example.smriti.ui.theme.PineGreen
 fun LoginScreen(
     onLoginSuccess: (role: String) -> Unit
 ) {
+    val currentLang by SmritiRepository.currentLanguage.collectAsState()
     var selectedRole by remember { mutableStateOf("patient") }
     var email by remember { mutableStateOf("patient@smriti.care") }
     var password by remember { mutableStateOf("smriti123") }
@@ -67,8 +69,8 @@ fun LoginScreen(
         Spacer(modifier = Modifier.height(18.dp))
 
         Text(
-            text = "Smriti (स्मृति)",
-            fontSize = 32.sp,
+            text = "स्mriti",
+            fontSize = 34.sp,
             fontWeight = FontWeight.Bold,
             color = ForestGreen
         )
@@ -181,7 +183,7 @@ fun LoginScreen(
                 .testTag("login_button")
         ) {
             Text(
-                text = "Enter Smriti (${selectedRole.replaceFirstChar { it.uppercase() }})",
+                text = "${AppStrings.get("login", currentLang)} (${selectedRole.replaceFirstChar { it.uppercase() }})",
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.White

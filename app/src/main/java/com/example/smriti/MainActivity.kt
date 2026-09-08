@@ -12,21 +12,25 @@ import androidx.compose.ui.Modifier
 import com.example.smriti.data.SmritiRepository
 import com.example.smriti.service.TtsManager
 import com.example.smriti.ui.screens.*
+import com.example.smriti.ui.screens.games.ClockOrientationScreen
 import com.example.smriti.ui.screens.games.MemoryGameScreen
 import com.example.smriti.ui.screens.games.ObjectGameScreen
 import com.example.smriti.ui.screens.games.PatternGameScreen
+import com.example.smriti.ui.screens.games.ReminiscenceTherapyScreen
 import com.example.smriti.ui.theme.SandBackground
 import com.example.smriti.ui.theme.SmritiTheme
 
 class MainActivity : ComponentActivity() {
 
     private lateinit var ttsManager: TtsManager
+    private lateinit var speechManager: com.example.smriti.service.SpeechToTextManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
         ttsManager = TtsManager(this)
+        speechManager = com.example.smriti.service.SpeechToTextManager(this)
 
         setContent {
             SmritiTheme {
@@ -55,6 +59,7 @@ class MainActivity : ComponentActivity() {
                             )
                             "home" -> HomeScreen(
                                 ttsManager = ttsManager,
+                                speechManager = speechManager,
                                 onNavigate = { target -> currentRoute = target },
                                 onLogout = { currentRoute = "login" }
                             )
@@ -83,8 +88,17 @@ class MainActivity : ComponentActivity() {
                                 ttsManager = ttsManager,
                                 onBack = { currentRoute = "home" }
                             )
+                            "game_reminiscence" -> ReminiscenceTherapyScreen(
+                                ttsManager = ttsManager,
+                                onBack = { currentRoute = "home" }
+                            )
+                            "game_clock" -> ClockOrientationScreen(
+                                ttsManager = ttsManager,
+                                onBack = { currentRoute = "home" }
+                            )
                             else -> HomeScreen(
                                 ttsManager = ttsManager,
+                                speechManager = speechManager,
                                 onNavigate = { target -> currentRoute = target },
                                 onLogout = { currentRoute = "login" }
                             )
@@ -97,6 +111,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
+        speechManager.stopListening()
         ttsManager.release()
     }
 }

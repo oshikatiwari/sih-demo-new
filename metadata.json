@@ -1,5 +1,5 @@
 {
-  "name": "Smriti CogniCare",
+  "name": "स्mriti",
   "description": "AI Cognitive Care Platform with brain games, multilingual voice guidance, CPS scoring, reminders, and GPS sentinel",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]

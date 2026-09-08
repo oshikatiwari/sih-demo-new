@@ -22,11 +22,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.smriti.data.SmritiRepository
+import com.example.smriti.service.AppStrings
+import com.example.smriti.service.SpeechToTextManager
 import com.example.smriti.service.TtsManager
 import com.example.smriti.service.VoiceAssistantService
 import com.example.smriti.ui.components.BluetoothBanner
+import com.example.smriti.ui.components.EmergencyAlertBanner
 import com.example.smriti.ui.components.LanguagePickerModal
 import com.example.smriti.ui.components.VoiceButton
+import com.example.smriti.ui.components.VoiceControlModal
 import com.example.smriti.ui.theme.*
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -35,22 +39,24 @@ import kotlinx.coroutines.launch
 @Composable
 fun HomeScreen(
     ttsManager: TtsManager,
+    speechManager: SpeechToTextManager,
     onNavigate: (route: String) -> Unit,
     onLogout: () -> Unit
 ) {
     val coroutineScope = rememberCoroutineScope()
     val currentLang by SmritiRepository.currentLanguage.collectAsState()
     val isBluetoothConnected by SmritiRepository.bluetoothConnected.collectAsState()
+    val emergencyAlertActive by SmritiRepository.emergencyAlertActive.collectAsState()
+    val lastEmergencyMessage by SmritiRepository.lastEmergencyMessage.collectAsState()
     val activePatient = SmritiRepository.getActivePatient()
 
     var showLanguagePicker by remember { mutableStateOf(false) }
     var voicePromptText by remember {
         mutableStateOf(VoiceAssistantService.getScreenGuidance("home", currentLang))
     }
-    var isListening by remember { mutableStateOf(false) }
+    var showVoiceModal by remember { mutableStateOf(false) }
+    val isListening by speechManager.isListening.collectAsState()
     var isSpeaking by remember { mutableStateOf(false) }
-    var showVoiceDialog by remember { mutableStateOf(false) }
-    var voiceResponseText by remember { mutableStateOf("") }
 
     // Update screen guidance whenever language changes
     LaunchedEffect(currentLang) {
@@ -79,8 +85,8 @@ fun HomeScreen(
                         Spacer(modifier = Modifier.width(10.dp))
                         Column {
                             Text(
-                                text = "Smriti (स्मृति)",
-                                fontSize = 20.sp,
+                                text = "स्mriti",
+                                fontSize = 21.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = Color.White
                             )
@@ -93,6 +99,13 @@ fun HomeScreen(
                     }
                 },
                 actions = {
+                    IconButton(
+                        onClick = { showVoiceModal = true },
+                        modifier = Modifier.testTag("action_mic_topbar")
+                    ) {
+                        Icon(Icons.Default.Mic, contentDescription = "Voice Control", tint = Color.White)
+                    }
+
                     IconButton(
                         onClick = { showLanguagePicker = true },
                         modifier = Modifier.testTag("action_language_picker")
@@ -135,6 +148,16 @@ fun HomeScreen(
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = 20.dp, vertical = 16.dp)
         ) {
+            // Emergency Alert Banner if triggered
+            if (emergencyAlertActive) {
+                EmergencyAlertBanner(
+                    message = lastEmergencyMessage,
+                    onViewSentinel = { onNavigate("gps_sentinel") },
+                    onDismiss = { SmritiRepository.dismissEmergencyAlert() }
+                )
+                Spacer(modifier = Modifier.height(14.dp))
+            }
+
             // Spoken Screen Guidance Card
             Card(
                 shape = RoundedCornerShape(20.dp),
@@ -189,10 +212,67 @@ fun HomeScreen(
                 }
             )
 
+            Spacer(modifier = Modifier.height(18.dp))
+
+            // Quick Today's Cognitive Overview Card
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .border(1.dp, Color(0xFFE2E8F0), RoundedCornerShape(20.dp))
+                    .clickable { onNavigate("caregiver") }
+                    .testTag("home_score_summary_card"),
+                shape = RoundedCornerShape(20.dp),
+                colors = CardDefaults.cardColors(containerColor = Color.White),
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+            ) {
+                Row(
+                    modifier = Modifier.padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(54.dp)
+                            .clip(CircleShape)
+                            .background(MintPastel),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "${SmritiRepository.getLatestCps().toInt()}",
+                            fontSize = 22.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = PineGreen
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.width(16.dp))
+
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = AppStrings.get("today_cognitive_score", currentLang),
+                            fontSize = 15.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = ForestGreen
+                        )
+                        Text(
+                            text = "${AppStrings.get("engagement_level", currentLang)}: ${activePatient.currentDisplayLabel}",
+                            fontSize = 13.sp,
+                            color = Color(0xFF4A5568)
+                        )
+                    }
+
+                    Icon(
+                        Icons.Default.TrendingUp,
+                        contentDescription = "View Trends",
+                        tint = EmeraldGreen,
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
+            }
+
             Spacer(modifier = Modifier.height(24.dp))
 
             Text(
-                text = "Daily Brain Activities",
+                text = AppStrings.get("daily_brain_activities", currentLang),
                 fontSize = 22.sp,
                 fontWeight = FontWeight.Bold,
                 color = ForestGreen
@@ -202,8 +282,8 @@ fun HomeScreen(
 
             // Activity 1: Memory Matching Game
             ActivityCard(
-                title = "Memory Matching",
-                subtitle = "Flip cards to find familiar matching regional pairs",
+                title = AppStrings.get("memory_matching", currentLang),
+                subtitle = AppStrings.get("memory_matching_sub", currentLang),
                 icon = Icons.Default.Style,
                 color = PineGreen,
                 tag = "activity_memory_game",
@@ -214,8 +294,8 @@ fun HomeScreen(
 
             // Activity 2: Pattern Recognition Game
             ActivityCard(
-                title = "Pattern Recognition",
-                subtitle = "Complete sequences of traditional patterns",
+                title = AppStrings.get("pattern_recognition", currentLang),
+                subtitle = AppStrings.get("pattern_recognition_sub", currentLang),
                 icon = Icons.Default.Extension,
                 color = Color(0xFF2E7D32),
                 tag = "activity_pattern_game",
@@ -226,8 +306,8 @@ fun HomeScreen(
 
             // Activity 3: Object Recognition Game
             ActivityCard(
-                title = "Regional Object Recognition",
-                subtitle = "Identify traditional Assamese & North Eastern items",
+                title = AppStrings.get("object_recognition", currentLang),
+                subtitle = AppStrings.get("object_recognition_sub", currentLang),
                 icon = Icons.Default.Category,
                 color = Color(0xFF00796B),
                 tag = "activity_object_game",
@@ -236,10 +316,34 @@ fun HomeScreen(
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // Activity 4: Reminders & Daily Schedule
+            // Activity 4: Dementia Reminiscence Therapy (Autobiographical Memory)
             ActivityCard(
-                title = "Reminders & Medication",
-                subtitle = "Check daily care schedule, medicine, & water",
+                title = AppStrings.get("reminiscence_therapy", currentLang),
+                subtitle = AppStrings.get("reminiscence_therapy_sub", currentLang),
+                icon = Icons.Default.Favorite,
+                color = Color(0xFF8B5CF6),
+                tag = "activity_reminiscence_game",
+                onClick = { onNavigate("game_reminiscence") }
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // Activity 5: Clinical Clock Orientation Test
+            ActivityCard(
+                title = AppStrings.get("clock_orientation", currentLang),
+                subtitle = AppStrings.get("clock_orientation_sub", currentLang),
+                icon = Icons.Default.AccessTime,
+                color = Color(0xFFD97706),
+                tag = "activity_clock_game",
+                onClick = { onNavigate("game_clock") }
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // Activity 6: Reminders & Daily Schedule
+            ActivityCard(
+                title = AppStrings.get("reminders_title", currentLang),
+                subtitle = AppStrings.get("reminders_sub", currentLang),
                 icon = Icons.Default.Medication,
                 color = ForestGreen,
                 tag = "activity_reminders",
@@ -248,10 +352,10 @@ fun HomeScreen(
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // Activity 5: GPS Sentinel & Geofence
+            // Activity 7: GPS Sentinel & Geofence
             ActivityCard(
-                title = "GPS Safe-Zone Sentinel",
-                subtitle = "Real-time boundary radar & emergency beacon",
+                title = AppStrings.get("gps_title", currentLang),
+                subtitle = AppStrings.get("gps_sub", currentLang),
                 icon = Icons.Default.Security,
                 color = Color(0xFF1E3A8A),
                 tag = "activity_gps_sentinel",
@@ -262,8 +366,8 @@ fun HomeScreen(
 
             // Activity 6: Caregiver Dashboard
             ActivityCard(
-                title = "Caregiver Overview",
-                subtitle = "View cognitive trends, alerts, & clinical reports",
+                title = AppStrings.get("caregiver_title", currentLang),
+                subtitle = AppStrings.get("caregiver_sub", currentLang),
                 icon = Icons.Default.Assessment,
                 color = Color(0xFF4C1D95),
                 tag = "activity_caregiver",
@@ -277,46 +381,27 @@ fun HomeScreen(
                 isListening = isListening,
                 isSpeaking = isSpeaking,
                 onClick = {
-                    coroutineScope.launch {
-                        isListening = true
-                        ttsManager.playChime()
-                        delay(1200) // simulate spoken query capture
-                        isListening = false
-
-                        // Sample query based on language
-                        val sampleQuery = when (currentLang) {
-                            "hi" -> "मेरा आज का स्कोर क्या है?"
-                            "as" -> "মোৰ আজিৰ স্ক'ৰ কিমান?"
-                            "mzo" -> "Vawiina ka mark hmuh engzat nge?"
-                            "kha" -> "Kaei ka jingtynjuh jong nga mynta?"
-                            else -> "How am I doing today?"
-                        }
-
-                        val result = VoiceAssistantService.processVoiceQuery(
-                            sampleQuery,
-                            currentLang,
-                            SmritiRepository.getLatestCps()
-                        )
-
-                        voiceResponseText = result.responseText
-                        showVoiceDialog = true
-                        isSpeaking = true
-
-                        ttsManager.speak(result.responseText, currentLang)
-                        delay(2500)
-                        isSpeaking = false
-
-                        result.actionRoute?.let { target ->
-                            delay(500)
-                            onNavigate(target)
-                        }
-                    }
+                    showVoiceModal = true
                 },
                 modifier = Modifier.fillMaxWidth()
             )
 
             Spacer(modifier = Modifier.height(20.dp))
         }
+    }
+
+    if (showVoiceModal) {
+        VoiceControlModal(
+            speechManager = speechManager,
+            ttsManager = ttsManager,
+            currentLang = currentLang,
+            isOpen = showVoiceModal,
+            onDismiss = { showVoiceModal = false },
+            onNavigate = { target ->
+                showVoiceModal = false
+                onNavigate(target)
+            }
+        )
     }
 
     if (showLanguagePicker) {
@@ -327,36 +412,6 @@ fun HomeScreen(
                 ttsManager.speak("Language changed to ${VoiceAssistantService.SUPPORTED_LANGUAGES.find { it.code == newLang }?.name}", newLang)
             },
             onDismiss = { showLanguagePicker = false }
-        )
-    }
-
-    if (showVoiceDialog) {
-        AlertDialog(
-            onDismissRequest = { showVoiceDialog = false },
-            title = {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(Icons.Default.RecordVoiceOver, contentDescription = null, tint = PineGreen)
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text("Smriti Voice Assistant", fontWeight = FontWeight.Bold)
-                }
-            },
-            text = {
-                Text(
-                    text = voiceResponseText,
-                    fontSize = 17.sp,
-                    color = ForestGreen,
-                    lineHeight = 24.sp
-                )
-            },
-            confirmButton = {
-                Button(
-                    onClick = { showVoiceDialog = false },
-                    colors = ButtonDefaults.buttonColors(containerColor = PineGreen)
-                ) {
-                    Text("Understood")
-                }
-            },
-            shape = RoundedCornerShape(20.dp)
         )
     }
 }

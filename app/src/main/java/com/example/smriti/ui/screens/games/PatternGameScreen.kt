@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.smriti.data.SmritiRepository
 import com.example.smriti.model.SessionMetrics
+import com.example.smriti.service.AppStrings
 import com.example.smriti.service.TtsManager
 import com.example.smriti.ui.theme.EmeraldGreen
 import com.example.smriti.ui.theme.ForestGreen
@@ -92,10 +93,10 @@ fun PatternGameScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Pattern Recognition", fontWeight = FontWeight.Bold, color = Color.White) },
+                title = { Text(AppStrings.get("pattern_recognition", currentLang), fontWeight = FontWeight.Bold, color = Color.White) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color.White)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = AppStrings.get("back", currentLang), tint = Color.White)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = PineGreen)
@@ -117,13 +118,13 @@ fun PatternGameScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Sequence ${currentRound + 1} of ${questions.size}",
+                    text = "${AppStrings.get("round", currentLang)} ${currentRound + 1} / ${questions.size}",
                     fontSize = 16.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = ForestGreen
                 )
                 Text(
-                    text = "Score: $score",
+                    text = "${AppStrings.get("score", currentLang)}: $score",
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
                     color = PineGreen

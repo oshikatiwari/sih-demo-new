@@ -26,6 +26,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.smriti.data.SmritiRepository
+import com.example.smriti.service.AppStrings
 import com.example.smriti.service.TtsManager
 import com.example.smriti.service.VoiceAssistantService
 import com.example.smriti.ui.theme.AlertBackground
@@ -45,6 +46,8 @@ fun GpsSentinelScreen(
 ) {
     val geofence by SmritiRepository.geofenceState.collectAsState()
     val currentLang by SmritiRepository.currentLanguage.collectAsState()
+    val emergencyAlertActive by SmritiRepository.emergencyAlertActive.collectAsState()
+    val lastEmergencyMessage by SmritiRepository.lastEmergencyMessage.collectAsState()
     var activeMode by remember { mutableStateOf("radar") } // "radar" or "beacon"
 
     val infiniteTransition = rememberInfiniteTransition(label = "radarSweep")
@@ -74,10 +77,22 @@ fun GpsSentinelScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("GPS Safe-Zone Sentinel", fontWeight = FontWeight.Bold, color = Color.White) },
+                title = { Text(AppStrings.get("gps_sentinel_title", currentLang), fontWeight = FontWeight.Bold, color = Color.White) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color.White)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = AppStrings.get("back", currentLang), tint = Color.White)
+                    }
+                },
+                actions = {
+                    IconButton(
+                        onClick = {
+                            SmritiRepository.triggerEmergencyReminder("Emergency SOS beacon activated at coordinates 26.1445° N, 91.7362° E")
+                            ttsManager.playAlertTone()
+                            ttsManager.speak("Emergency beacon dispatched to guardians.", currentLang)
+                        },
+                        modifier = Modifier.testTag("action_emergency_beacon_topbar")
+                    ) {
+                        Icon(Icons.Default.Emergency, contentDescription = "Emergency Beacon", tint = Color(0xFFFCA5A5))
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = PineGreen)
@@ -93,6 +108,32 @@ fun GpsSentinelScreen(
                 .padding(18.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            if (emergencyAlertActive) {
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .border(1.5.dp, Color(0xFFDC2626), RoundedCornerShape(16.dp))
+                        .testTag("gps_emergency_banner"),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color(0xFFFFF1F2))
+                ) {
+                    Row(
+                        modifier = Modifier.padding(14.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(Icons.Default.WarningAmber, contentDescription = null, tint = Color(0xFFDC2626), modifier = Modifier.size(26.dp))
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text("ACTIVE EMERGENCY BEACON", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = Color(0xFF991B1B))
+                            Text(lastEmergencyMessage, fontSize = 12.sp, color = Color(0xFFB91C1C))
+                        }
+                        IconButton(onClick = { SmritiRepository.dismissEmergencyAlert() }) {
+                            Icon(Icons.Default.Close, contentDescription = "Dismiss", tint = Color(0xFF991B1B))
+                        }
+                    }
+                }
+                Spacer(modifier = Modifier.height(14.dp))
+            }
             // Mode Switcher (Guardian Radar vs Beacon Tracker)
             Card(
                 modifier = Modifier.fillMaxWidth(),
@@ -127,7 +168,7 @@ fun GpsSentinelScreen(
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = "Beacon Tracker",
+                            text = AppStrings.get("emergency_beacon", currentLang),
                             fontWeight = FontWeight.Bold,
                             color = if (activeMode == "beacon") Color.White else Color.DarkGray
                         )
@@ -155,6 +196,12 @@ fun GpsSentinelScreen(
                         // Concentric range circles
                         for (i in 1..3) {
                             val r = maxR * (i / 3f)
+                            drawLine(
+                                color = Color(0xFF2D6A4F).copy(alpha = 0.5f),
+                                start = Offset(center.x - r, center.y),
+                                end = Offset(center.x + r, center.y),
+                                strokeWidth = 1f
+                            )
                             drawCircle(
                                 color = Color(0xFF2D6A4F).copy(alpha = 0.5f),
                                 radius = r,
@@ -163,29 +210,40 @@ fun GpsSentinelScreen(
                             )
                         }
 
-                        // Safe zone perimeter circle
-                        val safeR = (maxR * (geofence.radiusMeters / 300.0).coerceIn(0.2, 0.95)).toFloat()
-                        drawCircle(
-                            color = if (geofence.isInSafeZone) Color(0xFF52B788).copy(alpha = 0.25f) else Color(0xFFDC2626).copy(alpha = 0.25f),
-                            radius = safeR,
-                            center = center
+                        // Crosshairs
+                        drawLine(
+                            color = Color(0xFF2D6A4F).copy(alpha = 0.6f),
+                            start = Offset(center.x, 0f),
+                            end = Offset(center.x, size.height),
+                            strokeWidth = 1.2f
                         )
-                        drawCircle(
-                            color = if (geofence.isInSafeZone) Color(0xFF52B788) else Color(0xFFDC2626),
-                            radius = safeR,
-                            center = center,
-                            style = Stroke(width = 2.5f)
+                        drawLine(
+                            color = Color(0xFF2D6A4F).copy(alpha = 0.6f),
+                            start = Offset(0f, center.y),
+                            end = Offset(size.width, center.y),
+                            strokeWidth = 1.2f
                         )
 
                         // Radar sweep line
                         val rad = Math.toRadians(sweepAngle.toDouble())
-                        val endX = center.x + maxR * cos(rad).toFloat()
-                        val endY = center.y + maxR * sin(rad).toFloat()
+                        val sweepEnd = Offset(
+                            (center.x + maxR * cos(rad)).toFloat(),
+                            (center.y + maxR * sin(rad)).toFloat()
+                        )
                         drawLine(
-                            color = Color(0xFF74C69D).copy(alpha = 0.6f),
+                            color = if (geofence.isInSafeZone) Color(0xFF74C69D) else AlertRed,
                             start = center,
-                            end = Offset(endX, endY),
-                            strokeWidth = 2f
+                            end = sweepEnd,
+                            strokeWidth = 2.5f
+                        )
+
+                        // Safe zone perimeter ring
+                        val safeR = (maxR * 0.75f)
+                        drawCircle(
+                            color = if (geofence.isInSafeZone) EmeraldGreen.copy(alpha = 0.8f) else AlertRed.copy(alpha = 0.8f),
+                            radius = safeR,
+                            center = center,
+                            style = Stroke(width = 2.5f)
                         )
 
                         // Home Center Marker
@@ -251,7 +309,7 @@ fun GpsSentinelScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = if (geofence.isInSafeZone) "Patient Inside Perimeter" else "Boundary Breach Alert!",
+                            text = if (geofence.isInSafeZone) AppStrings.get("safe_inside", currentLang) else AppStrings.get("outside_zone", currentLang),
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Bold,
                             color = if (geofence.isInSafeZone) ForestGreen else AlertRed
@@ -263,7 +321,7 @@ fun GpsSentinelScreen(
                                 .padding(horizontal = 8.dp, vertical = 4.dp)
                         ) {
                             Text(
-                                text = "${geofence.distanceMeters.toInt()}m from Home",
+                                text = "${geofence.distanceMeters.toInt()}${AppStrings.get("meters", currentLang)}",
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = if (geofence.isInSafeZone) PineGreen else AlertRed
@@ -285,7 +343,7 @@ fun GpsSentinelScreen(
 
             // Radius Slider
             Text(
-                text = "Safe-Zone Radius: ${geofence.radiusMeters.toInt()} meters",
+                text = "${AppStrings.get("safe_radius", currentLang)}: ${geofence.radiusMeters.toInt()} ${AppStrings.get("meters", currentLang)}",
                 fontSize = 15.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = ForestGreen
@@ -311,10 +369,10 @@ fun GpsSentinelScreen(
                     SmritiRepository.simulateBreach(willBreach)
                     if (willBreach) {
                         ttsManager.playAlertTone()
-                        ttsManager.speak("Attention: Boundary alert triggered. Patient has moved outside designated perimeter.", "en")
+                        ttsManager.speak(AppStrings.get("safe_zone_breach", currentLang), currentLang)
                     } else {
                         ttsManager.playChime()
-                        ttsManager.speak("Boundary alert cleared. Patient is safely inside perimeter.", "en")
+                        ttsManager.speak(AppStrings.get("safe_zone_secure", currentLang), currentLang)
                     }
                 },
                 colors = ButtonDefaults.buttonColors(
@@ -332,7 +390,7 @@ fun GpsSentinelScreen(
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    text = if (geofence.isInSafeZone) "Simulate Safe Zone Breach" else "Restore Patient Inside Boundary",
+                    text = if (geofence.isInSafeZone) AppStrings.get("simulate_breach", currentLang) else AppStrings.get("restore_safe", currentLang),
                     fontWeight = FontWeight.Bold,
                     fontSize = 15.sp
                 )
@@ -348,7 +406,7 @@ fun GpsSentinelScreen(
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text(
-                        text = "Authorized Emergency Guardians",
+                        text = AppStrings.get("guardians_title", currentLang),
                         fontSize = 15.sp,
                         fontWeight = FontWeight.Bold,
                         color = ForestGreen

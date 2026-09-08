@@ -25,7 +25,9 @@ import com.example.smriti.data.SmritiRepository
 import com.example.smriti.model.GameSessionRecord
 import com.example.smriti.model.Patient
 import com.example.smriti.service.AnomalyDetector
+import com.example.smriti.service.AppStrings
 import com.example.smriti.service.TtsManager
+import com.example.smriti.ui.components.CognitiveTrendChart
 import com.example.smriti.ui.theme.AlertBackground
 import com.example.smriti.ui.theme.AlertRed
 import com.example.smriti.ui.theme.EmeraldGreen
@@ -42,6 +44,7 @@ fun CaregiverDashboardScreen(
 ) {
     val selectedPatientId by SmritiRepository.selectedPatientId.collectAsState()
     val allSessions by SmritiRepository.patientSessions.collectAsState()
+    val currentLang by SmritiRepository.currentLanguage.collectAsState()
 
     val currentPatient = SmritiRepository.getActivePatient()
     val sessions = allSessions[selectedPatientId] ?: emptyList()
@@ -53,15 +56,15 @@ fun CaregiverDashboardScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Caregiver Dashboard", fontWeight = FontWeight.Bold, color = Color.White) },
+                title = { Text(AppStrings.get("caregiver_dashboard", currentLang), fontWeight = FontWeight.Bold, color = Color.White) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color.White)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = AppStrings.get("back", currentLang), tint = Color.White)
                     }
                 },
                 actions = {
                     IconButton(onClick = onOpenGps) {
-                        Icon(Icons.Default.LocationOn, contentDescription = "GPS Sentinel", tint = Color.White)
+                        Icon(Icons.Default.LocationOn, contentDescription = AppStrings.get("gps_sentinel_title", currentLang), tint = Color.White)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = PineGreen)
@@ -79,7 +82,7 @@ fun CaregiverDashboardScreen(
             // Patient Selector
             item {
                 Text(
-                    text = "Select Monitored Patient",
+                    text = AppStrings.get("select_patient", currentLang),
                     fontSize = 15.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = Color.Gray
@@ -211,6 +214,11 @@ fun CaregiverDashboardScreen(
                         modifier = Modifier.weight(1f)
                     )
                 }
+            }
+
+            // Interactive Longitudinal Trend Analysis Chart
+            item {
+                CognitiveTrendChart(sessions = sessions)
             }
 
             // Quick Caregiver Actions

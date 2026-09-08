@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.smriti.data.SmritiRepository
 import com.example.smriti.model.SessionMetrics
+import com.example.smriti.service.AppStrings
 import com.example.smriti.service.TtsManager
 import com.example.smriti.ui.theme.EmeraldGreen
 import com.example.smriti.ui.theme.ForestGreen
@@ -42,6 +43,8 @@ fun ObjectGameScreen(
     ttsManager: TtsManager,
     onBack: () -> Unit
 ) {
+    val currentLang by SmritiRepository.currentLanguage.collectAsState()
+
     val items = remember {
         listOf(
             CulturalObjectItem(
@@ -84,10 +87,10 @@ fun ObjectGameScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Object Recognition", fontWeight = FontWeight.Bold, color = Color.White) },
+                title = { Text(AppStrings.get("object_recognition", currentLang), fontWeight = FontWeight.Bold, color = Color.White) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color.White)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = AppStrings.get("back", currentLang), tint = Color.White)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = PineGreen)
@@ -109,7 +112,7 @@ fun ObjectGameScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Object ${currentIndex + 1} of ${items.size}",
+                    text = "${AppStrings.get("round", currentLang)} ${currentIndex + 1} / ${items.size}",
                     fontSize = 16.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = ForestGreen
@@ -120,7 +123,7 @@ fun ObjectGameScreen(
                 ) {
                     Icon(Icons.Default.HelpOutline, contentDescription = null, modifier = Modifier.size(18.dp))
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text("Need a Hint?")
+                    Text(AppStrings.get("hint", currentLang))
                 }
             }
 

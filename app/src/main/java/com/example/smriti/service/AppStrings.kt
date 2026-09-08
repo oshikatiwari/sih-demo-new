@@ -1,0 +1,510 @@
+package com.example.smriti.service
+
+/**
+ * Centralized multi-language localization service for Smriti app.
+ * Supports:
+ *  - English ("en")
+ *  - Hindi ("hi")
+ *  - Assamese ("as")
+ *  - Mizo ("mzo")
+ *  - Khasi ("kha")
+ */
+object AppStrings {
+
+    fun get(key: String, lang: String): String {
+        val bundle = STRINGS[lang] ?: STRINGS["en"]!!
+        return bundle[key] ?: STRINGS["en"]?.get(key) ?: key
+    }
+
+    private val STRINGS: Map<String, Map<String, String>> = mapOf(
+        "en" to mapOf(
+            // General
+            "app_title" to "स्mriti",
+            "app_subtitle" to "Cognitive Care & Memory Assistance Platform",
+            "back" to "Back",
+            "save" to "Save",
+            "cancel" to "Cancel",
+            "close" to "Close",
+            "completed" to "Completed",
+            "pending" to "Pending",
+
+            // TopBar & Home
+            "today_cognitive_score" to "Today's Cognitive Score",
+            "engagement_level" to "Engagement Level",
+            "daily_brain_activities" to "Daily Brain Activities",
+            "memory_matching" to "Memory Matching",
+            "memory_matching_sub" to "Flip cards to find familiar matching regional pairs",
+            "pattern_recognition" to "Pattern Recognition",
+            "pattern_recognition_sub" to "Complete sequences of traditional patterns",
+            "object_recognition" to "Regional Object Recognition",
+            "object_recognition_sub" to "Identify traditional Assamese & North Eastern items",
+            "reminiscence_therapy" to "Cherished Reminiscence & Story",
+            "reminiscence_therapy_sub" to "Explore heartwarming family memories & vintage regional stories",
+            "clock_orientation" to "Clock Orientation & Time Recall",
+            "clock_orientation_sub" to "Gentle clock drawing & daily time orientation practice",
+            "reminders_title" to "Reminders & Medication",
+            "reminders_sub" to "Check daily care schedule, medicine, & water",
+            "gps_title" to "GPS Safe-Zone Sentinel",
+            "gps_sub" to "Real-time boundary radar & emergency beacon",
+            "caregiver_title" to "Caregiver Overview",
+            "caregiver_sub" to "View cognitive trends, alerts, & clinical reports",
+            "talk_to_assistant" to "Tap to Talk to Voice Assistant",
+            "listening" to "Listening...",
+            "speaking" to "Speaking...",
+
+            // Reminders
+            "care_schedule" to "Care Schedule & Reminders",
+            "safe_zone_secure" to "Safe-Zone Sentinel: Secure inside safe area",
+            "safe_zone_breach" to "Safe-Zone Alert: Boundary breach detected!",
+            "add_reminder" to "Add Reminder",
+            "title_label" to "Reminder Title",
+            "details_label" to "Instruction / Details",
+            "time_label" to "Scheduled Time",
+            "type_label" to "Type (Medication / Hydration / Brain Activity / Walk)",
+            "no_reminders" to "No reminders scheduled for today",
+
+            // Caregiver Dashboard
+            "caregiver_dashboard" to "Caregiver Dashboard",
+            "select_patient" to "Select Monitored Patient",
+            "current_score" to "Current Cognitive Performance",
+            "support_tier" to "Support Tier",
+            "longitudinal_trajectory" to "Cognitive Trajectory (CPS)",
+            "longitudinal_sub" to "Real-time longitudinal session progression",
+            "support_notice" to "Caregiver Support Notice",
+            "support_notice_sub" to "Sliding-window analysis detected a decline. Support recommended.",
+            "emergency_contact" to "Emergency Contact",
+            "safe_boundary" to "Safe Boundary",
+            "call_contact" to "Call Contact",
+            "message_contact" to "Send Alert",
+
+            // Games
+            "play_gentle" to "Take your time. There is no rush at all.",
+            "attempts" to "Attempts",
+            "matches" to "Matches",
+            "accuracy" to "Accuracy",
+            "reaction_speed" to "Reaction Speed",
+            "memory_recall" to "Memory Recall",
+            "play_again" to "Play Again",
+            "back_to_home" to "Back to Home",
+            "session_completed" to "Session Completed!",
+            "great_job" to "Great job completing your brain exercise today! Regular practice keeps memory active.",
+            "which_next" to "Which item comes next in the pattern?",
+            "check_answer" to "Check Answer",
+            "correct" to "Correct! Wonderful observation.",
+            "keep_trying" to "Not quite. Take another look gently.",
+
+            // GPS Sentinel
+            "gps_sentinel_title" to "GPS Safe-Zone Sentinel",
+            "patient_status" to "Patient Status",
+            "safe_inside" to "Patient inside Safe Home Zone",
+            "outside_zone" to "Patient outside safe perimeter!",
+            "distance_from_home" to "Distance from Safe Home",
+            "safe_radius" to "Safe Zone Radius",
+            "meters" to "meters",
+            "simulate_breach" to "Simulate Safe Zone Breach",
+            "restore_safe" to "Restore to Safe Zone",
+            "emergency_beacon" to "Emergency Beacon",
+            "alert_guardians" to "Alert Guardians",
+
+            // Roles & Auth
+            "patient_role" to "Patient",
+            "caregiver_role" to "Caregiver",
+            "admin_role" to "Admin",
+            "email" to "Email Address",
+            "password" to "Password",
+            "sign_in" to "Enter Smriti Platform"
+        ),
+
+        "hi" to mapOf(
+            // General
+            "app_title" to "स्mriti",
+            "app_subtitle" to "स्मृति और संज्ञानात्मक देखभाल मंच",
+            "back" to "पीछे जाएं",
+            "save" to "सुरक्षित करें",
+            "cancel" to "रद्द करें",
+            "close" to "बंद करें",
+            "completed" to "पूर्ण हुआ",
+            "pending" to "बाकी है",
+
+            // TopBar & Home
+            "today_cognitive_score" to "आज का संज्ञानात्मक स्कोर",
+            "engagement_level" to "सक्रियता स्तर",
+            "daily_brain_activities" to "दैनिक दिमागी अभ्यास",
+            "memory_matching" to "मेमोरी मैचिंग कार्ड्स",
+            "memory_matching_sub" to "कार्ड्स उलटकर परिचित जोड़ियों को खोजें",
+            "pattern_recognition" to "पैटर्न पहचान अभ्यास",
+            "pattern_recognition_sub" to "पारंपरिक डिजाइनों के क्रम को पूरा करें",
+            "object_recognition" to "क्षेत्रीय वस्तु पहचान",
+            "object_recognition_sub" to "पूर्वोत्तर व असम की पारंपरिक वस्तुएं पहचानें",
+            "reminiscence_therapy" to "सुखद स्मृतियाँ व पुरानी कहानियाँ",
+            "reminiscence_therapy_sub" to "पारिवारिक संस्मरण और क्षेत्रीय पुरानी मधुर यादें सुनें",
+            "clock_orientation" to "घड़ी ओरिएंटेशन व समय स्मरण",
+            "clock_orientation_sub" to "समय पहचान व आसान घड़ी सूई अभ्यास",
+            "reminders_title" to "दवा और दिनचर्या अनुस्मारक",
+            "reminders_sub" to "दैनिक दवा, पानी और टहलने का समय देखें",
+            "gps_title" to "जीपीएस सुरक्षित घेरा (सेंटिनल)",
+            "gps_sub" to "लाइव सीमा रडार और आपातकालीन सुरक्षा बीकन",
+            "caregiver_title" to "केयरगिवर डैशबोर्ड",
+            "caregiver_sub" to "संज्ञानात्मक प्रगति, अलर्ट और नैदानिक रिपोर्ट",
+            "talk_to_assistant" to "वॉयस असिस्टेंट से बात करने के लिए दबाएं",
+            "listening" to "सुन रहा हूँ...",
+            "speaking" to "बोल रहा हूँ...",
+
+            // Reminders
+            "care_schedule" to "दैनिक देखभाल और दवा शेड्यूल",
+            "safe_zone_secure" to "सुरक्षित घेरा: मरीज सुरक्षित क्षेत्र के अंदर है",
+            "safe_zone_breach" to "चेतावनी: मरीज सुरक्षित दायरे से बाहर निकला!",
+            "add_reminder" to "नया रिमाइंडर जोड़ें",
+            "title_label" to "रिमाइंडर का नाम",
+            "details_label" to "विवरण / निर्देश",
+            "time_label" to "निर्धारित समय",
+            "type_label" to "प्रकार (दवा / पानी / दिमागी खेल / सैर)",
+            "no_reminders" to "आज के लिए कोई रिमाइंडर नहीं है",
+
+            // Caregiver Dashboard
+            "caregiver_dashboard" to "केयरगिवर डैशबोर्ड",
+            "select_patient" to "निगरानी हेतु मरीज चुनें",
+            "current_score" to "वर्तमान संज्ञानात्मक स्कोर",
+            "support_tier" to "सहायता स्तर",
+            "longitudinal_trajectory" to "संज्ञानात्मक प्रगति ग्राफ (CPS)",
+            "longitudinal_sub" to "सत्रों के आधार पर लाइव स्कोर का रुझान",
+            "support_notice" to "केयरगिवर सहायता सूचना",
+            "support_notice_sub" to "स्कोर में गिरावट दर्ज की गई। अतिरिक्त सहायता अनुशंसित है।",
+            "emergency_contact" to "आपातकालीन संपर्क",
+            "safe_boundary" to "सुरक्षित सीमा",
+            "call_contact" to "कॉल करें",
+            "message_contact" to "अलर्ट भेजें",
+
+            // Games
+            "play_gentle" to "आराम से खेलें, कोई जल्दबाजी नहीं है।",
+            "attempts" to "प्रयास",
+            "matches" to "जोड़ियां",
+            "accuracy" to "सटीकता",
+            "reaction_speed" to "प्रतिक्रिया गति",
+            "memory_recall" to "स्मृति स्मरण",
+            "play_again" to "फिर से खेलें",
+            "back_to_home" to "मुख्य पृष्ठ पर जाएं",
+            "session_completed" to "अभ्यास पूरा हुआ!",
+            "great_job" to "आज का दिमागी अभ्यास पूरा करने के लिए शाबाश! नियमित अभ्यास से दिमाग चुस्त रहता है।",
+            "which_next" to "पैटर्न में आगे कौन सा चित्र आएगा?",
+            "check_answer" to "उत्तर जांचें",
+            "correct" to "बिल्कुल सही! बहुत बढ़िया।",
+            "keep_trying" to "फिर से ध्यान से देखें और प्रयास करें।",
+
+            // GPS Sentinel
+            "gps_sentinel_title" to "जीपीएस सेफ-ज़ोन सेंटिनल",
+            "patient_status" to "मरीज की स्थिति",
+            "safe_inside" to "मरीज घर के सुरक्षित दायरे में है",
+            "outside_zone" to "अलर्ट: मरीज सुरक्षित दायरे से बाहर है!",
+            "distance_from_home" to "घर से दूरी",
+            "safe_radius" to "सुरक्षित क्षेत्र का दायरा",
+            "meters" to "मीटर",
+            "simulate_breach" to "सीमा उल्लंघन का परीक्षण करें",
+            "restore_safe" to "सुरक्षित दायरे में वापस लाएं",
+            "emergency_beacon" to "इमरजेंसी बीकन",
+            "alert_guardians" to "अभिभावकों को सूचित करें",
+
+            // Roles & Auth
+            "patient_role" to "मरीज",
+            "caregiver_role" to "केयरगिवर",
+            "admin_role" to "व्यवस्थापक",
+            "email" to "ईमेल आईडी",
+            "password" to "पासवर्ड",
+            "sign_in" to "स्मृति ऐप में प्रवेश करें"
+        ),
+
+        "as" to mapOf(
+            // General
+            "app_title" to "स्mriti",
+            "app_subtitle" to "স্মৃতি আৰু জ্ঞানীয় যত্ন সেৱা মঞ্চ",
+            "back" to "উভতি যাওক",
+            "save" to "সংৰক্ষণ কৰক",
+            "cancel" to "বাতিল কৰক",
+            "close" to "বন্ধ কৰক",
+            "completed" to "সম্পূৰ্ণ হ'ল",
+            "pending" to "বাকী আছে",
+
+            // TopBar & Home
+            "today_cognitive_score" to "আজিৰ স্মৃতি স্ক'ৰ",
+            "engagement_level" to "সক্ৰিয়তাৰ স্তৰ",
+            "daily_brain_activities" to "দৈনিক মগজুৰ অনুশীলন",
+            "memory_matching" to "মেম'ৰী মেচিং কাৰ্ড",
+            "memory_matching_sub" to "কাৰ্ড ওলোটাই চিনাকি জোৰা বিচাৰি উলিয়াওক",
+            "pattern_recognition" to "প্ৰতিৰূপ চিনাক্তকৰণ",
+            "pattern_recognition_sub" to "পাৰম্পৰিক সাজ আৰু আৰ্হিৰ ক্ৰম সম্পূৰ্ণ কৰক",
+            "object_recognition" to "আঞ্চলিক বস্তু চিনাক্তকৰণ",
+            "object_recognition_sub" to "অসম আৰু উত্তৰ-পূবৰ ঐতিহ্যমণ্ডিত বস্তু চিনক",
+            "reminiscence_therapy" to "মৰমৰ পুৰণি স্মৃতি আৰু কাহিনী",
+            "reminiscence_therapy_sub" to "পৰিয়ালৰ স্মৃতি আৰু ঐতিহ্যপূৰ্ণ কাহিনী শুনক",
+            "clock_orientation" to "ঘড়ী আৰু সময়ৰ অৱস্থিতি",
+            "clock_orientation_sub" to "সময় চিনাক্তকৰণ আৰু সহজ ঘড়ী কাঁটা অনুশীলন",
+            "reminders_title" to "ঔষধ আৰু যত্নৰ অনুস্মাৰক",
+            "reminders_sub" to "দৈনিক ঔষধ, পানী আৰু খোজ কঢ়াৰ সময়সূচী",
+            "gps_title" to "জি পি এছ সুৰক্ষা সেন্টিনেল",
+            "gps_sub" to "সজীৱ সীমা নিৰীক্ষণ আৰু জৰুৰীকালীন নিৰাপত্তা",
+            "caregiver_title" to "তত্ত্বাৱধানকাৰী ডেশ্বব'ৰ্ড",
+            "caregiver_sub" to "স্মৃতিৰ অগ্ৰগতি, সতৰ্কবাৰ্তা আৰু চিকিৎসা প্ৰতিবেদন",
+            "talk_to_assistant" to "সহায়কৰ সৈতে কথা ক'বলৈ টিপক",
+            "listening" to "শুনি আছোঁ...",
+            "speaking" to "কৈ আছোঁ...",
+
+            // Reminders
+            "care_schedule" to "যত্নৰ সময়সূচী আৰু অনুস্মাৰক",
+            "safe_zone_secure" to "সুৰক্ষিত পৰিসীমা: ব্যক্তি ঘৰৰ ভিতৰত সুৰক্ষিত",
+            "safe_zone_breach" to "সতৰ্কবাৰ্তা: সুৰক্ষিত পৰিসীমা অতিক্ৰম কৰিছে!",
+            "add_reminder" to "নতুন অনুস্মাৰক যোগ কৰক",
+            "title_label" to "অনুস্মাৰকৰ নাম",
+            "details_label" to "নিৰ্দেশনা / বিৱৰণ",
+            "time_label" to "নিৰ্ধাৰিত সময়",
+            "type_label" to "প্ৰকাৰ (ঔষধ / পানী / মগজুৰ খেল / খোজ কঢ়া)",
+            "no_reminders" to "আজিৰ বাবে কোনো অনুস্মাৰক নাই",
+
+            // Caregiver Dashboard
+            "caregiver_dashboard" to "তত্ত্বাৱধানকাৰী ডেশ্বব'ৰ্ড",
+            "select_patient" to "পৰ্যবেক্ষণৰ বাবে ব্যক্তি বাছক",
+            "current_score" to "বৰ্তমানৰ স্মৃতি স্ক'ৰ",
+            "support_tier" to "সহায়তা স্তৰ",
+            "longitudinal_trajectory" to "স্মৃতি অগ্ৰগতিৰ ৰেখাচিত্ৰ (CPS)",
+            "longitudinal_sub" to "অনুশীলনসমূহৰ ভিত্তিত স্মৃতিৰ ধাৰাবাহিক গতি",
+            "support_notice" to "তত্ত্বাৱধানকাৰী সতৰ্কবাৰ্তা",
+            "support_notice_sub" to "স্ক'ৰ হ্ৰাস পোৱা দেখা গৈছে। বিশেষ যত্ন লোৱাৰ পৰামৰ্শ দিয়া হ'ল।",
+            "emergency_contact" to "জৰুৰীকালীন যোগাযোগ",
+            "safe_boundary" to "সুৰক্ষিত পৰিসীমা",
+            "call_contact" to "ফোন কৰক",
+            "message_contact" to "বাৰ্তা পঠিয়াওক",
+
+            // Games
+            "play_gentle" to "ধীৰে-সুস্থে খেলক, কোনো খৰখেদা নাই।",
+            "attempts" to "চেষ্টা",
+            "matches" to "জোৰা",
+            "accuracy" to "নিখুঁততা",
+            "reaction_speed" to "গতিবেগ",
+            "memory_recall" to "স্মৃতি শক্তি",
+            "play_again" to "পুনৰ খেলক",
+            "back_to_home" to "মূল পৃষ্ঠালৈ যাওক",
+            "session_completed" to "অনুশীলন সম্পূৰ্ণ হ'ল!",
+            "great_job" to "আজিৰ মগজুৰ খেল সুন্দৰকৈ সম্পূৰ্ণ কৰিলে! নিয়মীয়া অনুশীলনে স্মৃতি সতেজ ৰাখে।",
+            "which_next" to "ক্ৰমত পৰৱৰ্তী ছবিখন কি হ'ব?",
+            "check_answer" to "উত্তৰ পৰীক্ষা কৰক",
+            "correct" to "একেবাৰে শুদ্ধ! অতি সুন্দৰ।",
+            "keep_trying" to "আকৌ এবাৰ মনোযোগেৰে চাওক।",
+
+            // GPS Sentinel
+            "gps_sentinel_title" to "জি পি এছ সুৰক্ষা সেন্টিনেল",
+            "patient_status" to "ব্যক্তিৰ অৱস্থান",
+            "safe_inside" to "ব্যক্তি সুৰক্ষিত সীমাৰ ভিতৰত আছে",
+            "outside_zone" to "সতৰ্কবাৰ্তা: ব্যক্তি সুৰক্ষিত এলেকাৰ বাহিৰত!",
+            "distance_from_home" to "ঘৰৰ পৰা দূৰত্ব",
+            "safe_radius" to "সুৰক্ষিত ব্যাসাৰ্ধ",
+            "meters" to "মিটাৰ",
+            "simulate_breach" to "সীমোন্নঙ্ঘন পৰীক্ষা কৰক",
+            "restore_safe" to "সুৰক্ষিত স্থানলৈ ঘূৰাই আনক",
+            "emergency_beacon" to "জৰুৰীকালীন সংকেত",
+            "alert_guardians" to "অভিভাৱকক জনাওক",
+
+            // Roles & Auth
+            "patient_role" to "ৰোগী / জ্যেষ্ঠ",
+            "caregiver_role" to "তত্ত্বাৱধানকাৰী",
+            "admin_role" to "প্ৰশাসক",
+            "email" to "ইমেইল ঠিকনা",
+            "password" to "পাছৱৰ্ড",
+            "sign_in" to "স্মৃতিত প্ৰৱেশ কৰক"
+        ),
+
+        "mzo" to mapOf(
+            // General
+            "app_title" to "स्mriti",
+            "app_subtitle" to "Hriatrengna leh Enkawlna Hmanraw Pui",
+            "back" to "Let Leh",
+            "save" to "Vawng tha rawh",
+            "cancel" to "Thulh rawh",
+            "close" to "Khar rawh",
+            "completed" to "Zoh fel a ni",
+            "pending" to "La ti lo",
+
+            // TopBar & Home
+            "today_cognitive_score" to "Vawiin Hriatna Mark",
+            "engagement_level" to "Inhmanna Dinhmun",
+            "daily_brain_activities" to "Ni Tin Thluak Sawizawina",
+            "memory_matching" to "Memory Matching Card",
+            "memory_matching_sub" to "Card let kual la inmil zawng rawh",
+            "pattern_recognition" to "Pattern Hriatna",
+            "pattern_recognition_sub" to "A inzawm dan tur thlang rawh",
+            "object_recognition" to "Hmun Hrang Thil Hriatna",
+            "object_recognition_sub" to "Kan chhehvela thil hrang hrang hriat hran",
+            "reminiscence_therapy" to "Hriatreng Thil hlui leh Thawnthu",
+            "reminiscence_therapy_sub" to "Chhungkua leh hmanlai thawnthu ngaihnawm thlirletna",
+            "clock_orientation" to "Sana leh Hun Hriatfiahna",
+            "clock_orientation_sub" to "Hun hriatfiahna leh sana hmuhthiam zirtirna",
+            "reminders_title" to "Damdawi leh Hriatnawm",
+            "reminders_sub" to "Damdawi ei hun leh tui in hun hriatna",
+            "gps_title" to "GPS Himna Hmun Sentinel",
+            "gps_sub" to "Awmnan ramri leh himna dinhmun",
+            "caregiver_title" to "Enkawltu Dashboard",
+            "caregiver_sub" to "Hriatrengna dinhmun leh venhimna thlirna",
+            "talk_to_assistant" to "Biak nan mic hmet rawh",
+            "listening" to "Ngaithla mek...",
+            "speaking" to "Kren mek...",
+
+            // Reminders
+            "care_schedule" to "Enkawlna Ruahmanna",
+            "safe_zone_secure" to "Himna Hmun: Him taka awm mek a ni",
+            "safe_zone_breach" to "Fimkhurna: Himna ramri pelh a ni!",
+            "add_reminder" to "Hriatnawm thar siam rawh",
+            "title_label" to "Hming",
+            "details_label" to "A sawifiahna",
+            "time_label" to "A hun",
+            "type_label" to "A chi (Damdawi / Tui / Infiamna / Len kual)",
+            "no_reminders" to "Vawiin tan hriattirna a awm lo",
+
+            // Caregiver Dashboard
+            "caregiver_dashboard" to "Enkawltu Dashboard",
+            "select_patient" to "Enkawl mek thlang rawh",
+            "current_score" to "Tunlai Hriatna Mark",
+            "support_tier" to "Tansapna Dinhmun",
+            "longitudinal_trajectory" to "Hriatrengna Mark Kalphung (CPS)",
+            "longitudinal_sub" to "Ni tin mark hmuh dan thlirna",
+            "support_notice" to "Enkawltu Fimkhur Thuthawn",
+            "support_notice_sub" to "Mark a hniam tlat mai. Enkawl uluk lehzual a ngai e.",
+            "emergency_contact" to "Biatu Tur",
+            "safe_boundary" to "Himna Ramri",
+            "call_contact" to "Call rawh",
+            "message_contact" to "Alert thawn rawh",
+
+            // Games
+            "play_gentle" to "Hmanhmawh suh, muangchangin ti rawh.",
+            "attempts" to "Tih chhin",
+            "matches" to "Inmil",
+            "accuracy" to "A dik zat",
+            "reaction_speed" to "A chhanna rang lam",
+            "memory_recall" to "Hriatrengna",
+            "play_again" to "Khel leh rawh",
+            "back_to_home" to "In lamah let rawh",
+            "session_completed" to "I zo ta e!",
+            "great_job" to "Thluak sawizawina i ti zo ta, i ti tha lutuk e!",
+            "which_next" to "A dawtah eng nge lo awm ang?",
+            "check_answer" to "En chhin rawh",
+            "correct" to "A dik e! I thiam hle mai.",
+            "keep_trying" to "A dik chiah lo, han ngaihtuah nawn leh teh.",
+
+            // GPS Sentinel
+            "gps_sentinel_title" to "GPS Himna Sentinel",
+            "patient_status" to "Awmdan Dinhmun",
+            "safe_inside" to "In chhung him taka awm mek a ni",
+            "outside_zone" to "Fimkhur rawh: Ramri pawnah a chhuak e!",
+            "distance_from_home" to "In atanga hlat zawng",
+            "safe_radius" to "Himna Ramri zau zawng",
+            "meters" to "meters",
+            "simulate_breach" to "Ramri pelh entirna",
+            "restore_safe" to "Himna hmunah dah leh rawh",
+            "emergency_beacon" to "Emergency Signal",
+            "alert_guardians" to "Chhungte hriattir rawh",
+
+            // Roles & Auth
+            "patient_role" to "Mipuite",
+            "caregiver_role" to "Enkawltu",
+            "admin_role" to "Hruaitu",
+            "email" to "Email",
+            "password" to "Password",
+            "sign_in" to "Lut rawh"
+        ),
+
+        "kha" to mapOf(
+            // General
+            "app_title" to "स्mriti",
+            "app_subtitle" to "Ka Jingiarap ban pynsah ia ka Jingmut bad Jingiada",
+            "back" to "Leh Dien",
+            "save" to "Pynsah",
+            "cancel" to "Iaid noh",
+            "close" to "Khang",
+            "completed" to "La Dep",
+            "pending" to "Dang sah",
+
+            // TopBar & Home
+            "today_cognitive_score" to "Ka Jingtynjuh Jingmut Mynta",
+            "engagement_level" to "Ka Jingtreikam",
+            "daily_brain_activities" to "Ki Jingpynkyntiew Jingmut Mynsiem",
+            "memory_matching" to "Memory Matching Cards",
+            "memory_matching_sub" to "Pynkylla ia ki card ban wad ia ki ba iahap",
+            "pattern_recognition" to "Ka Jingithuh ia ki Dur",
+            "pattern_recognition_sub" to "Pynbiang ia ki jingiadei jong ki dur",
+            "object_recognition" to "Jingithuh ia ki Tiarg Halor Ri",
+            "object_recognition_sub" to "Ithuh ia ki tiar tynrai jong ka thain Shatei Lam Mihngi",
+            "reminiscence_therapy" to "Ki Jingkynmaw Baieit bad Parom",
+            "reminiscence_therapy_sub" to "Ki jingkynmaw kiba bang bad ki parom rim jong ka thain",
+            "clock_orientation" to "Ka Jingithuh Por bad Baje",
+            "clock_orientation_sub" to "Pynithuh ia ka por bad ka baje da kaba shai",
+            "reminders_title" to "Dawai bad Jingpyrkhat",
+            "reminders_sub" to "Peit ia ka por dih dawai, um bad jingiaid",
+            "gps_title" to "GPS Safe-Zone Sentinel",
+            "gps_sub" to "Ka jingpeit pyrman ia ka jaka bad shongsuk",
+            "caregiver_title" to "Dashboard jong u Nongsumar",
+            "caregiver_sub" to "Peit ia ka jinglong jingman, khubor bad jingiada",
+            "talk_to_assistant" to "Kynton ban kren ha ka Voice Assistant",
+            "listening" to "Dang sngap...",
+            "speaking" to "Dang kren...",
+
+            // Reminders
+            "care_schedule" to "Ka Por Dih Dawai bad Jingpeit",
+            "safe_zone_secure" to "Ka Shongsuk: U don hapoh ka jaka ba shngain",
+            "safe_zone_breach" to "Maham: U la mih shabar ka jaka shongsuk!",
+            "add_reminder" to "Pynrung Jingpyrkhat Thymmai",
+            "title_label" to "Kyrteng",
+            "details_label" to "Jingbatai",
+            "time_label" to "Ka Por",
+            "type_label" to "Jait (Dawai / Um / Jingialeh / Jingiaid)",
+            "no_reminders" to "Ym don jingpyrkhat mynta ka sngi",
+
+            // Caregiver Dashboard
+            "caregiver_dashboard" to "Dashboard jong u Nongsumar",
+            "select_patient" to "Jied ia uba sumar",
+            "current_score" to "Ka Jingtynjuh Jingmut Mynta",
+            "support_tier" to "Ka kyrdan Jingiarap",
+            "longitudinal_trajectory" to "Ka Rukom Kiew/Hiar Jingmut (CPS)",
+            "longitudinal_sub" to "Ka jingpeit thuh ha ki sngi ba la leit",
+            "support_notice" to "Khubor Maham ia u Nongsumar",
+            "support_notice_sub" to "La iohi ba ka jingmut ka la hiar. Donkam ban shim khia.",
+            "emergency_contact" to "U ban Phone ha ka Por Shitom",
+            "safe_boundary" to "Ka Jaka ba Shngain",
+            "call_contact" to "Phone mynta",
+            "message_contact" to "Phah Khubor",
+
+            // Games
+            "play_gentle" to "Jai jai, ym don jingkloi stet eiei.",
+            "attempts" to "Jingtympuh",
+            "matches" to "Ki ba iahap",
+            "accuracy" to "Ka jingbiang",
+            "reaction_speed" to "Ka por pynphai",
+            "memory_recall" to "Ka jingkynmaw",
+            "play_again" to "Leh biang",
+            "back_to_home" to "Leh sha Khmat",
+            "session_completed" to "La dep ka jingialeh!",
+            "great_job" to "Khublei shibun! Ka jingpynkyntiew jingmut ka pynlah ban pynkhlain ia ka jingkynmaw.",
+            "which_next" to "Kaei ka ban wan hadien?",
+            "check_answer" to "Peit ka jubab",
+            "correct" to "Biang thik! Ka jingithuh kaba bha.",
+            "keep_trying" to "Pyrshang biang da kaba peit bniah.",
+
+            // GPS Sentinel
+            "gps_sentinel_title" to "GPS Safe-Zone Sentinel",
+            "patient_status" to "Ka Jinglong Jingman",
+            "safe_inside" to "Don hapoh ka iing ba shngain",
+            "outside_zone" to "Maham: La mih shabar ka jaka!",
+            "distance_from_home" to "Jngai na iing",
+            "safe_radius" to "Ka Jaka Shngain",
+            "meters" to "meters",
+            "simulate_breach" to "Pyrshang ia ka jingmih shabar",
+            "restore_safe" to "Pynwan biang sha ka jaka shngain",
+            "emergency_beacon" to "Ka Dak Shitom",
+            "alert_guardians" to "Pyntip sha ki Baheh",
+
+            // Roles & Auth
+            "patient_role" to "Uba Pang",
+            "caregiver_role" to "Nongsumar",
+            "admin_role" to "Nongpyniaid",
+            "email" to "Email",
+            "password" to "Password",
+            "sign_in" to "Bsut sha Smriti"
+        )
+    )
+}

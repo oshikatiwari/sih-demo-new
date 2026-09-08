@@ -12,8 +12,10 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Emergency
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Stars
+import androidx.compose.material.icons.filled.VolumeUp
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -28,6 +30,7 @@ import androidx.compose.ui.unit.sp
 import com.example.smriti.data.SmritiRepository
 import com.example.smriti.model.CpsResult
 import com.example.smriti.model.SessionMetrics
+import com.example.smriti.service.AppStrings
 import com.example.smriti.service.TtsManager
 import com.example.smriti.service.VoiceAssistantService
 import com.example.smriti.ui.theme.EmeraldGreen
@@ -152,15 +155,35 @@ fun MemoryGameScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Memory Matching", fontWeight = FontWeight.Bold, color = Color.White) },
+                title = { Text(AppStrings.get("memory_matching", currentLang), fontWeight = FontWeight.Bold, color = Color.White) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color.White)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = AppStrings.get("back", currentLang), tint = Color.White)
                     }
                 },
                 actions = {
+                    IconButton(
+                        onClick = {
+                            ttsManager.speak(VoiceAssistantService.getScreenGuidance("gameplay", currentLang), currentLang)
+                        },
+                        modifier = Modifier.testTag("action_read_guidance")
+                    ) {
+                        Icon(Icons.Default.VolumeUp, contentDescription = "Listen to guidance", tint = Color.White)
+                    }
+
+                    IconButton(
+                        onClick = {
+                            SmritiRepository.triggerEmergencyReminder("SOS triggered from Memory Matching game")
+                            ttsManager.playAlertTone()
+                            ttsManager.speak("Emergency reminder dispatched to caregiver.", currentLang)
+                        },
+                        modifier = Modifier.testTag("action_sos_game")
+                    ) {
+                        Icon(Icons.Default.Emergency, contentDescription = "Emergency Alert", tint = Color(0xFFFCA5A5))
+                    }
+
                     IconButton(onClick = { resetGame() }) {
-                        Icon(Icons.Default.Refresh, contentDescription = "Restart", tint = Color.White)
+                        Icon(Icons.Default.Refresh, contentDescription = AppStrings.get("play_again", currentLang), tint = Color.White)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = PineGreen)
@@ -186,18 +209,18 @@ fun MemoryGameScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text("Pairs Found", fontSize = 13.sp, color = Color.Gray)
+                    Text("Pairs", fontSize = 13.sp, color = Color.Gray)
                     Text("$matchesFound / 6", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = PineGreen)
                 }
                 Box(modifier = Modifier.height(28.dp).width(1.dp).background(Color(0xFFE2E8F0)))
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text("Attempts", fontSize = 13.sp, color = Color.Gray)
+                    Text(AppStrings.get("attempts", currentLang), fontSize = 13.sp, color = Color.Gray)
                     Text("$attempts", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = ForestGreen)
                 }
                 Box(modifier = Modifier.height(28.dp).width(1.dp).background(Color(0xFFE2E8F0)))
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text("Support Level", fontSize = 13.sp, color = Color.Gray)
-                    Text("Gentle", fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = EmeraldGreen)
+                    Text(AppStrings.get("accuracy", currentLang), fontSize = 13.sp, color = Color.Gray)
+                    Text("${((matchesFound.toDouble() / attempts.coerceAtLeast(1)) * 100).toInt()}%", fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = EmeraldGreen)
                 }
             }
 
@@ -318,9 +341,32 @@ fun MemoryGameScreen(
                         )
                     }
 
+                    // Vector Analytics Breakdown
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(Color(0xFFF8FAFC))
+                            .padding(10.dp),
+                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                            Text("Accuracy:", fontSize = 12.sp, color = Color.Gray)
+                            Text("${result.accuracyScore.toInt()}%", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = ForestGreen)
+                        }
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                            Text("Reaction Speed:", fontSize = 12.sp, color = Color.Gray)
+                            Text("${result.speedScore.toInt()}/100", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = ForestGreen)
+                        }
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                            Text("Memory Recall:", fontSize = 12.sp, color = Color.Gray)
+                            Text("${result.memoryScore.toInt()}%", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = ForestGreen)
+                        }
+                    }
+
                     Text(
                         text = "Great job completing your brain exercise today! Regular practice keeps memory active.",
-                        fontSize = 14.sp,
+                        fontSize = 13.sp,
                         color = Color.Gray,
                         lineHeight = 18.sp
                     )

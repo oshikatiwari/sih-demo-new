@@ -92,9 +92,38 @@ object SmritiRepository {
     private val _geofenceState = MutableStateFlow(GeofenceState())
     val geofenceState: StateFlow<GeofenceState> = _geofenceState.asStateFlow()
 
+    // Emergency Voice Alert Event Holder
+    private val _emergencyAlertActive = MutableStateFlow(false)
+    val emergencyAlertActive: StateFlow<Boolean> = _emergencyAlertActive.asStateFlow()
+
+    private val _lastEmergencyMessage = MutableStateFlow("")
+    val lastEmergencyMessage: StateFlow<String> = _lastEmergencyMessage.asStateFlow()
+
     // Actions
     fun setRole(role: String) {
         _currentRole.value = role
+    }
+
+    fun triggerEmergencyReminder(reason: String = "Patient verbal emergency request"): Reminder {
+        val timeFormat = SimpleDateFormat("hh:mm a", Locale.getDefault())
+        val currentTime = timeFormat.format(Date())
+        val emergencyRem = Reminder(
+            id = "rem-emergency-${System.currentTimeMillis()}",
+            title = "EMERGENCY: Immediate Caregiver Contact",
+            subtitle = "$reason • GPS Safe-Zone and live audio beacon active",
+            time = currentTime,
+            type = "emergency",
+            isCompleted = false
+        )
+        // Prepend emergency reminder so it is at the top of the schedule
+        _reminders.value = listOf(emergencyRem) + _reminders.value
+        _emergencyAlertActive.value = true
+        _lastEmergencyMessage.value = "$reason at $currentTime"
+        return emergencyRem
+    }
+
+    fun dismissEmergencyAlert() {
+        _emergencyAlertActive.value = false
     }
 
     fun selectPatient(patientId: String) {

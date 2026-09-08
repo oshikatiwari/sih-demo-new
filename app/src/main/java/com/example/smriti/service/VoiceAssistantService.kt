@@ -85,7 +85,33 @@ object VoiceAssistantService {
     fun processVoiceQuery(spokenPhrase: String, langCode: String, currentCps: Double = 82.0): VoiceIntentResult {
         val phrase = spokenPhrase.lowercase().trim()
 
-        val isStartGame = phrase.contains("game") || phrase.contains("play") || phrase.contains("start") ||
+        // Emergency Reminders / SOS
+        val isEmergency = phrase.contains("emergency") || phrase.contains("sos") || phrase.contains("alert") ||
+                phrase.contains("danger") || phrase.contains("lost") || phrase.contains("help me") ||
+                phrase.contains("आपातकाल") || phrase.contains("मदद करो") || phrase.contains("खतरे") ||
+                phrase.contains("বিপদ") || phrase.contains("জৰুৰী") || phrase.contains("সহায় কৰক") ||
+                phrase.contains("chhiatrupna") || phrase.contains("puihna") || phrase.contains("ka sngewsyier")
+
+        // Specific Games Navigation
+        val isMemoryGame = (phrase.contains("memory") && (phrase.contains("game") || phrase.contains("match") || phrase.contains("card"))) ||
+                phrase.contains("कार्ड") || phrase.contains("मेमोरी गेम") || phrase.contains("কাৰ্ড") || phrase.contains("মেম'ৰী খেল")
+
+        val isPatternGame = phrase.contains("pattern") || phrase.contains("design") || phrase.contains("sequence") ||
+                phrase.contains("पैटर्न") || phrase.contains("डिजाइन") || phrase.contains("আৰ্হি") ||
+                phrase.contains("inthlun") || phrase.contains("dur")
+
+        val isObjectGame = phrase.contains("object") || phrase.contains("item") || phrase.contains("identify") ||
+                phrase.contains("वस्तु") || phrase.contains("पहचान") || phrase.contains("বস্তু") ||
+                phrase.contains("thil") || phrase.contains("tiar")
+
+        val isStory = phrase.contains("story") || phrase.contains("reminiscence") ||
+                phrase.contains("कहानी") || phrase.contains("याद") || phrase.contains("সাধু") ||
+                phrase.contains("কাহিনী") || phrase.contains("thawnthu") || phrase.contains("parom")
+
+        val isClock = phrase.contains("clock") || phrase.contains("time") || phrase.contains("ঘড়ী") ||
+                phrase.contains("घड़ी") || phrase.contains("समय") || phrase.contains("sana") || phrase.contains("baje")
+
+        val isStartGenericGame = phrase.contains("game") || phrase.contains("play") || phrase.contains("start") ||
                 phrase.contains("खेल") || phrase.contains("गेम") || phrase.contains("শুরু") ||
                 phrase.contains("খেল") || phrase.contains("infiamna") || phrase.contains("jingialeh")
 
@@ -94,18 +120,86 @@ object VoiceAssistantService {
                 phrase.contains("mark") || phrase.contains("jingtynjuh")
 
         val isReminders = phrase.contains("medicine") || phrase.contains("pill") || phrase.contains("water") ||
-                phrase.contains("reminder") || phrase.contains("दवा") || phrase.contains("पानी") ||
+                phrase.contains("reminder") || phrase.contains("schedule") || phrase.contains("दवा") || phrase.contains("पानी") ||
                 phrase.contains("ঔষধ") || phrase.contains("পানী") || phrase.contains("damdawi") || phrase.contains("dawai")
 
-        val isCaregiver = phrase.contains("help") || phrase.contains("caregiver") || phrase.contains("call") ||
-                phrase.contains("doctor") || phrase.contains("मदद") || phrase.contains("सहायता") ||
-                phrase.contains("সহায়") || phrase.contains("ডাক্তৰ") || phrase.contains("iarap")
+        val isGpsSentinel = phrase.contains("gps") || phrase.contains("safe zone") || phrase.contains("location") ||
+                phrase.contains("boundary") || phrase.contains("सुरक्षा") || phrase.contains("घेरा") ||
+                phrase.contains("সুৰক্ষা") || phrase.contains("পৰিসীমা") || phrase.contains("himna")
+
+        val isCaregiver = phrase.contains("caregiver") || phrase.contains("family") || phrase.contains("doctor") ||
+                phrase.contains("केयरगिवर") || phrase.contains("डॉक्टर") || phrase.contains("ডাক্তৰ") ||
+                phrase.contains("enkawltu") || phrase.contains("nongsumar")
+
+        val isHome = phrase.contains("home") || phrase.contains("main menu") || phrase.contains("back") ||
+                phrase.contains("घर") || phrase.contains("मुख्य") || phrase.contains("ঘৰ") ||
+                phrase.contains("in") || phrase.contains("ing")
 
         val isGreeting = phrase.contains("hello") || phrase.contains("hi") || phrase.contains("namaste") ||
                 phrase.contains("नमस्ते") || phrase.contains("নমস্কাৰ") || phrase.contains("chibai") || phrase.contains("khublei")
 
         return when {
-            isStartGame -> {
+            isEmergency -> {
+                val text = when (langCode) {
+                    "hi" -> "आपातकालीन अनुस्मारक सक्रिय! आपका स्थान सुरक्षित रूप से अभिभावक को भेजा गया है। हम आपके साथ हैं।"
+                    "as" -> "জৰুৰী সতৰ্কতা সক্ৰিয়! আপোনাৰ অৱস্থান সুৰক্ষিতভাৱে তত্ত্বাৱধানকাৰীলৈ প্ৰেৰণ কৰা হৈছে। চিন্তা নকৰিব।"
+                    "mzo" -> "Chhiatrupna hriatnawm pek a ni! I awmna hmun enkawltu hnenah kan thawn e. Mangang suh."
+                    "kha" -> "Jingpyrkhat kyrpang la pynkhih! La phah ia ka jaka ba phi don sha u nongsumar. Wat sngewsyier."
+                    else -> "Emergency reminder triggered! Guardian notified with your live GPS location. Stay calm, help is near."
+                }
+                VoiceIntentResult("EMERGENCY_ALERT", text, "gps_sentinel")
+            }
+            isMemoryGame -> {
+                val text = when (langCode) {
+                    "hi" -> "मेमोरी मैचिंग कार्ड गेम खोला जा रहा है। आराम से खेलें।"
+                    "as" -> "মেম'ৰী মেচিং কাৰ্ড খেল মুকলি কৰা হৈছে। ধৈৰ্য্যেৰে খেলক।"
+                    "mzo" -> "Memory matching card infiamna kan hawng mek e."
+                    "kha" -> "Plie ia ka jingialeh memory matching."
+                    else -> "Opening Memory Matching cards for you. Enjoy your gentle practice."
+                }
+                VoiceIntentResult("NAVIGATE_MEMORY", text, "game_memory")
+            }
+            isPatternGame -> {
+                val text = when (langCode) {
+                    "hi" -> "पैटर्न पहचान अभ्यास खोला जा रहा है।"
+                    "as" -> "আৰ্হি চিনাক্তকৰণ অনুশীলন মুকলি কৰা হৈছে।"
+                    "mzo" -> "Pattern hriatfiahna infiamna kan hawng mek e."
+                    "kha" -> "Plie ia ka pattern recognition."
+                    else -> "Opening Pattern Recognition practice."
+                }
+                VoiceIntentResult("NAVIGATE_PATTERN", text, "game_pattern")
+            }
+            isObjectGame -> {
+                val text = when (langCode) {
+                    "hi" -> "क्षेत्रीय वस्तु पहचान खेल खोला जा रहा है।"
+                    "as" -> "আঞ্চলিক বস্তু চিনাক্তকৰণ খেল মুকলি কৰা হৈছে।"
+                    "mzo" -> "Thil hriat hran infiamna kan hawng mek e."
+                    "kha" -> "Plie ia ka object recognition."
+                    else -> "Opening Regional Object Recognition game."
+                }
+                VoiceIntentResult("NAVIGATE_OBJECT", text, "game_object")
+            }
+            isStory -> {
+                val text = when (langCode) {
+                    "hi" -> "आइए एक सुकून भरी पुरानी याद और कहानी सुनते हैं। रेमिनिसेंस थेरेपी शुरू की जा रही है।"
+                    "as" -> "ব'লক এটা মৰমৰ পুৰণি কাহিনী শুনোঁ। স্মৃতি আৰু কাহিনী মুকলি কৰা হৈছে।"
+                    "mzo" -> "Thawnthu leh hriatreng thil hlui ngaihthlak i tan ang u."
+                    "kha" -> "Kha ngin sngap ia ki parom bad ki jingkynmaw kiba bang."
+                    else -> "Let's listen to a comforting cherished story from our memories."
+                }
+                VoiceIntentResult("START_STORY", text, "game_reminiscence")
+            }
+            isClock -> {
+                val text = when (langCode) {
+                    "hi" -> "चलिए घड़ी और समय ओरिएंटेशन का आसान अभ्यास करते हैं।"
+                    "as" -> "ব'লক ঘড়ী আৰু সময়ৰ অৱস্থিতিৰ সহজ অনুশীলন কৰোঁ।"
+                    "mzo" -> "Sana leh hun hriatfiahna zirtirna kan tan mek e."
+                    "kha" -> "Ngin pyrshang ia ka jingithuh por bad baje."
+                    else -> "Let's practice gentle clock orientation and time setting."
+                }
+                VoiceIntentResult("START_CLOCK", text, "game_clock")
+            }
+            isStartGenericGame -> {
                 val text = when (langCode) {
                     "hi" -> "चलिए एक नया खेल शुरू करते हैं! मेमोरी मैचिंग कार्ड खेलें।"
                     "as" -> "ব'লক এটা নতুন খেল আৰম্ভ কৰোঁ! মেম'ৰী মেচিং কাৰ্ড খেলক।"
@@ -114,6 +208,46 @@ object VoiceAssistantService {
                     else -> "Let's start a brain activity! Opening Memory Matching for you."
                 }
                 VoiceIntentResult("START_GAME", text, "game_memory")
+            }
+            isReminders -> {
+                val text = when (langCode) {
+                    "hi" -> "अपनी सुबह की दवा और दिनचर्या देखें। शेड्यूल स्क्रीन खोल रहा हूँ।"
+                    "as" -> "আপোনাৰ পুৱাৰ ঔষধ আৰু যত্নৰ সময়সূচী স্ক্ৰীণ খুলিছোঁ।"
+                    "mzo" -> "Damdawi leh ni tin ruahmanna screen kan hawng mek e."
+                    "kha" -> "Plie ia ka schedule ban dih dawai bad ka jingiaid."
+                    else -> "Opening your Daily Care & Medication Schedule."
+                }
+                VoiceIntentResult("CHECK_REMINDERS", text, "reminders")
+            }
+            isGpsSentinel -> {
+                val text = when (langCode) {
+                    "hi" -> "जीपीएस सेफ-ज़ोन सेंटिनल खोला जा रहा है। स्थान सुरक्षित है।"
+                    "as" -> "জি পি এছ সুৰক্ষা সেন্টিনেল স্ক্ৰীণ খুলিছোঁ।"
+                    "mzo" -> "GPS Himna Hmun Sentinel kan hawng mek e."
+                    "kha" -> "Plie ia ka GPS Safe-Zone Sentinel."
+                    else -> "Opening GPS Safe-Zone Sentinel."
+                }
+                VoiceIntentResult("NAVIGATE_GPS", text, "gps_sentinel")
+            }
+            isCaregiver -> {
+                val text = when (langCode) {
+                    "hi" -> "केयरगिवर डैशबोर्ड खोला जा रहा है।"
+                    "as" -> "তত্ত্বাৱধানকাৰী ডেশ্বব'ৰ্ড স্ক্ৰীণ খুলিছোঁ।"
+                    "mzo" -> "Enkawltu Dashboard kan hawng mek e."
+                    "kha" -> "Plie ia ka Caregiver Dashboard."
+                    else -> "Opening Caregiver Dashboard."
+                }
+                VoiceIntentResult("NAVIGATE_CAREGIVER", text, "caregiver")
+            }
+            isHome -> {
+                val text = when (langCode) {
+                    "hi" -> "मुख्य स्क्रीन पर वापस जा रहे हैं।"
+                    "as" -> "প্ৰধান স্ক্ৰীণলৈ উভতি গৈছোঁ।"
+                    "mzo" -> "Home screen-ah kan let leh mek e."
+                    "kha" -> "Lehphai sha ka Home screen."
+                    else -> "Returning to Home screen."
+                }
+                VoiceIntentResult("NAVIGATE_HOME", text, "home")
             }
             isCheckScore -> {
                 val text = when (langCode) {
@@ -125,43 +259,23 @@ object VoiceAssistantService {
                 }
                 VoiceIntentResult("CHECK_SCORE", text, null)
             }
-            isReminders -> {
-                val text = when (langCode) {
-                    "hi" -> "अपनी सुबह की दवा पानी के साथ अवश्य लें। शेड्यूल स्क्रीन खोल रहा हूँ।"
-                    "as" -> "আপোনাৰ পুৱাৰ ঔষধ পানীৰ সৈতে লওক। সময়সূচী স্ক্ৰীণ খুলিছোঁ।"
-                    "mzo" -> "I tukthuan damdawi ei rawh le. Reminders screen kan hawng mek e."
-                    "kha" -> "Dih ia ka dawai mynta step. Ngin plie ia ka reminders screen."
-                    else -> "Please remember your morning medication with water. Opening your schedule."
-                }
-                VoiceIntentResult("CHECK_REMINDERS", text, "reminders")
-            }
-            isCaregiver -> {
-                val text = when (langCode) {
-                    "hi" -> "चिंता न करें, हमने आपके केयरगिवर को तुरंत संदेश भेजा है।"
-                    "as" -> "চিন্তা নকৰিব, আমি আপোনাৰ তত্ত্বাৱধানকাৰীলৈ বাৰ্তা প্ৰেৰণ কৰিছোঁ।"
-                    "mzo" -> "Mangang suh, i enkawltu hnena thuthawn kan thawn mek e."
-                    "kha" -> "Wat sngewsyier, ngi phah khubor sha u nongsumar mynta."
-                    else -> "Don't worry, we are alerting your caregiver right now."
-                }
-                VoiceIntentResult("CALL_CAREGIVER", text, null)
-            }
             isGreeting -> {
                 val text = when (langCode) {
-                    "hi" -> "नमस्ते! मैं आपकी स्मृति साथी हूँ। आज आप क्या करना चाहेंगे?"
-                    "as" -> "নমস্কাৰ! মই আপোনাৰ স্মৃতি সংগী। আজি আপুনি কি কৰিব বিচাৰিব?"
-                    "mzo" -> "Chibai! Smriti tanpuitu ka ni e. Vawiin hian eng nge tih i duh ang?"
-                    "kha" -> "Khublei! Nga long u nongiarap Smriti. Kiei ba phi kwah ban leh mynta?"
-                    else -> "Hello! I am your Smriti companion. How can I assist you today?"
+                    "hi" -> "नमस्ते! मैं आपकी स्मृति साथी हूँ। आप 'कार्ड गेम', 'घड़ी अभ्यास', 'दवा याद दिलाओ' या 'मदद' बोल सकते हैं।"
+                    "as" -> "নমস্কাৰ! মই আপোনাৰ স্মৃতি সংগী। আপুনি 'মেম'ৰী খেল', 'কাহিনী শুনা', 'ঔষধ' বা 'সহায়' ক'ব পাৰে।"
+                    "mzo" -> "Chibai! Smriti tanpuitu ka ni e. 'Infiamna', 'Thawnthu', a nih loh chuan 'Damdawi' tiin sawi rawh le."
+                    "kha" -> "Khublei! Nga long u nongiarap Smriti. Phi lah ban ong 'jingialeh', 'parom', lane 'dawai'."
+                    else -> "Hello! I am your Smriti companion. Say 'Memory game', 'Clock', 'Medicine', or 'Emergency help' anytime."
                 }
                 VoiceIntentResult("GREETING", text, null)
             }
             else -> {
                 val text = when (langCode) {
-                    "hi" -> "मैं समझ गई! आप होम स्क्रीन पर खेल खेल सकते हैं या अपना स्कोर देख सकते हैं।"
-                    "as" -> "মই বুজি পালোঁ! আপুনি যিকোনো সময়তে খেল খেলিব পাৰে নতুবা স্ক'ৰ চাব পাৰে।"
-                    "mzo" -> "Ka hrethiam e! Hun eng tik ah pawh infiamna i khel thei a ni."
-                    "kha" -> "Nga sngewthuh! Phi lah ban ialeh jingialeh lane peit ia ka jingtynjuh jong phi."
-                    else -> "I understand! You can practice daily brain activities or check your reminders anytime."
+                    "hi" -> "सुना: \"$spokenPhrase\"। आप 'खेल खेलें', 'कहानी सुनाओ', 'घड़ी', या 'दवा' बोल सकते हैं।"
+                    "as" -> "শুনিলোঁ: \"$spokenPhrase\"। আপুনি 'খেল', 'সাধু', 'ঘড়ী', নতুবা 'ঔষধ' ক'ব পাৰে।"
+                    "mzo" -> "Hriat a ni: \"$spokenPhrase\"। 'Infiamna', 'Thawnthu', maw 'Damdawi' sawi rawh le."
+                    "kha" -> "La sngap: \"$spokenPhrase\"। Phi lah ban ong 'jingialeh', 'parom', lane 'dawai'."
+                    else -> "Heard: \"$spokenPhrase\". You can say 'Memory Game', 'Story', 'Clock', 'Schedule', or 'Emergency'."
                 }
                 VoiceIntentResult("UNKNOWN", text, null)
             }
